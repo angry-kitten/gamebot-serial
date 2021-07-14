@@ -109,6 +109,11 @@ typedef struct {
 	uint8_t  RY;     // Right Stick Y
 } USB_JoystickReport_Output_t;
 
+// Joystick.c
+extern uint8_t echo_count;
+extern volatile uint32_t interrupt_count;
+extern volatile uint32_t cmd_elapsed_msec;
+
 // Function Prototypes
 // Setup all necessary hardware, including USB initialization.
 void SetupHardware(void);
@@ -125,21 +130,12 @@ void ResetReport(void);
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData);
 // Process data from serial port.
 void Serial_Task(void);
-// Initialize script.
-void Script_Init(void);
-// Run script on startup.
-void Script_AutoStart(void);
-// Run local script.
-void Script_Start(void);
-// Stop local script.
-void Script_Stop(void);
-// Process local script instructions.
-void Script_Task(void);
-// Binary operations
-void BinaryOp(uint8_t op, uint8_t reg, int16_t value);
 // LED control
 void BlinkLED(void);
-// Serial_SendByte wrapper
-void Serial_Send(const char DataByte);
 
-#endif
+// Joystick.c
+void CMDQueueClear_gpe(void);
+void CMDQueue_Task(void);
+void SetDefaultStateReport(void);
+
+#endif /* _JOYSTICK_H_ */

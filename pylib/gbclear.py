@@ -11,19 +11,24 @@ import time
 
 import packetserial
 
-def do_request_reply_test():
-    is_alive=packetserial.request_test_alive()
-    if is_alive:
-        print("is alive")
-    else:
-        print("is not alive")
+def clear_state():
+    req=packetserial.GBPCMD_REQ_CLEAR_STATE;
+    print(f"req=[{req}]")
+    rep=packetserial.PacketSerialRequest(req)
+    print(f"rep=[{rep}]")
+    if packetserial.GBPCMD_REP_SUCCESS == rep:
+        print("test result good")
+        return
+    print("test result bad")
 
 def open_and_test():
     packetserial.PacketSerialOpenAndClear()
-    do_request_reply_test();
+    time.sleep(1)
+    clear_state()
+    time.sleep(1)
 
 def main(args):
-    print("gamebot test alive")
+    print("gamebot clear state")
     open_and_test()
 
 if __name__ == "__main__":

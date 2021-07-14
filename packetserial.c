@@ -11,8 +11,8 @@ Serial packet support written for gamebot-serial.
 #include "packetserial.h"
 #include "crc.h"
 
-serial_ring_t sri={0,0,{0}};
-serial_ring_t sro={0,0,{0}};
+serial_ring_t sri={0,0,0,{0}};
+serial_ring_t sro={0,0,0,{0}};
 
 /*
 Packet format
@@ -36,23 +36,12 @@ uint8_t reply_packet[SP_MAX_SIZE];
 
 uint8_t SerialRingUsed(serial_ring_t *rp)
 {
-    uint8_t used=0;
-
-    if( rp->tail <= rp->head )
-    {
-        used=rp->head-rp->tail;
-    }
-    else
-    {
-        used=SERIAL_RING_SIZE-(rp->tail-rp->head);
-    }
-
-    return used;
+    return rp->count;
 }
 
 uint8_t SerialRingFree(serial_ring_t *rp)
 {
-    uint8_t f=(SERIAL_RING_SIZE-1)-SerialRingUsed(rp);
+    uint8_t f=(SERIAL_RING_SIZE-1)-(rp->count);
     return f;
 }
 
@@ -72,6 +61,7 @@ void SerialRingAdd(serial_ring_t *rp, uint8_t b)
 
     rp->ring[rp->head]=b;
     rp->head=(rp->head+1)%SERIAL_RING_SIZE;
+    rp->count++;
 }
 
 void SerialRingAddString(serial_ring_t *rp, const char *s)
@@ -98,6 +88,7 @@ uint8_t SerialRingPop(serial_ring_t *rp)
     }
     uint8_t returnme=rp->ring[rp->tail];
     rp->tail=(rp->tail+1)%SERIAL_RING_SIZE;
+    rp->count--;
     return returnme;
 }
 
@@ -222,45 +213,6 @@ void ReplyPacket(uint8_t *d, uint8_t dlen)
     SerialRingAdd(&sro,SP_END);
 }
 
-void ReplyPacketError(void)
-{
-    uint8_t rdata[1];
-
-    rdata[0]=GBPCMD_REP_ERROR;
-
-    ReplyPacket(rdata,1);
-}
-
-void ReplyPacketAlive(void)
-{
-    uint8_t rdata[1];
-
-    rdata[0]=GBPCMD_REP_ALIVE;
-
-    ReplyPacket(rdata,1);
-}
-
-void ProcessRequest(uint8_t *rp, uint8_t rl)
-{
-    if( rl < 1 )
-    {
-        ReplyPacketError();
-        return;
-    }
-
-    uint8_t request_command=rp[0];
-
-    switch(request_command)
-    {
-        default:
-            ReplyPacketError();
-            break;
-        case GBPCMD_REQ_TEST:
-            ReplyPacketAlive();
-            break;
-    }
-}
-
 // Return the lower 8 bits of a crc32.
 uint8_t LowerEightCRC32(uint8_t *data, uint8_t data_len)
 {
@@ -275,19 +227,19 @@ void ProcessPacket(void)
 
     if( pl < 4 )
     {
-        ReplyPacketError();
+        ReplyError();
         return;
     }
 
     if( SP_START != packet[0] )
     {
-        ReplyPacketError();
+        ReplyError();
         return;
     }
 
     if( SP_END != packet[pl-1] )
     {
-        ReplyPacketError();
+        ReplyError();
         return;
     }
 
@@ -299,7 +251,7 @@ void ProcessPacket(void)
 
     if( packet_crc32ish != crc32ish )
     {
-        ReplyPacketError();
+        ReplyError();
         return;
     }
 

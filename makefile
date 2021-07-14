@@ -31,6 +31,8 @@ SRC          = \
     Descriptors.c \
     packetserial.c \
     crc.c \
+    requests.c \
+    cmdqueue.c \
     $(LUFA_SRC_USB) \
     $(LUFA_SRC_SERIAL)
 
@@ -38,7 +40,7 @@ LUFA_PATH    = ./lufa/LUFA
 CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -DMEM_SIZE=$(MEM_SIZE) -DBOARD=$(BOARD) -DLEDMASK_TX=$(LEDMASK_TX) -DLEDMASK_RX=$(LEDMASK_RX) -IConfig/ 
 LD_FLAGS     =
 
-$(shell mkdir ./$(REAL_BOARD))
+$(shell mkdir -p ./$(REAL_BOARD))
 
 # Default target
 all:
