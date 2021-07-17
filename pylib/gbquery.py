@@ -21,12 +21,12 @@ def calculate_rate(c1,c2,seconds):
     r=d/seconds
     return r
 
-def query_state():
+def query_state(ps):
     test_time_sec=10
 
-    (flags,head,tail,count,ic,cem,echo_count)=packetserial.request_query_state()
+    (flags,head,tail,count,ic,cem,echo_count)=ps.request_query_state()
     print(f"flags={flags}")
-    if flags & packetserial.GB_FLAGS_CONFIGURED:
+    if flags & ps.GB_FLAGS_CONFIGURED:
         print("configured")
     else:
         print("not configured")
@@ -42,9 +42,9 @@ def query_state():
 
     time.sleep(test_time_sec)
 
-    (flags,head,tail,count,ic,cem,echo_count)=packetserial.request_query_state()
+    (flags,head,tail,count,ic,cem,echo_count)=ps.request_query_state()
     print(f"flags={flags}")
-    if flags & packetserial.GB_FLAGS_CONFIGURED:
+    if flags & ps.GB_FLAGS_CONFIGURED:
         print("configured")
     else:
         print("not configured")
@@ -63,9 +63,11 @@ def query_state():
 
 
 def open_and_test():
-    packetserial.PacketSerialOpenAndClear()
+    ps=packetserial.PacketSerial()
+    ps.OpenAndClear()
     time.sleep(1)
-    query_state()
+    query_state(ps)
+    ps.Close()
 
 def main(args):
     print("gamebot query state")

@@ -11,21 +11,13 @@ import time
 
 import packetserial
 
-def clear_state():
-    req=packetserial.GBPCMD_REQ_CLEAR_STATE;
-    print(f"req=[{req}]")
-    rep=packetserial.PacketSerialRequest(req)
-    print(f"rep=[{rep}]")
-    if packetserial.GBPCMD_REP_SUCCESS == rep:
-        print("test result good")
-        return
-    print("test result bad")
-
 def open_and_test():
-    packetserial.PacketSerialOpenAndClear()
+    ps=packetserial.PacketSerial()
+    ps.OpenAndClear()
     time.sleep(1)
-    clear_state()
+    ps.request_clear_state()
     time.sleep(1)
+    ps.Close()
 
 def main(args):
     print("gamebot clear state")

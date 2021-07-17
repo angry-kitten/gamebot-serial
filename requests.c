@@ -192,22 +192,269 @@ void RequestPressAll(uint8_t *rp, uint8_t rl)
 
 void RequestPressButtons(uint8_t *rp, uint8_t rl)
 {
-    ReplyError();
+    if( rl < 3 )
+    {
+        ReplyError();
+    }
+    if( rl > 5 )
+    {
+        ReplyError();
+    }
+
+    uint8_t f=CMDQueueFree();
+    if( f < 2 )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Set up the down strokes.
+    cmdqueue_element_t *pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Request and reply data is MSB-first AKA Network Byte Order AKA Big-Endian
+    // 0       1            2           3          4
+    // Prefix, Button high, Button low, MSec high, MSec low
+
+    pe->i.Button = rp[1]<<8;
+    pe->i.Button |= rp[2];
+
+    if( rl >= 4 )
+    {
+        pe->duration_msec = rp[3]<<8;
+        if( rl >= 5 )
+        {
+            pe->duration_msec |= rp[4];
+        }
+    }
+    else
+    {
+        pe->duration_msec=default_press_duration_msec;
+    }
+
+    // Set up the up strokes.
+    // Since this is a full button press, we now need
+    // to release the buttons.
+
+    pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        // This shouldn't happen.
+        ReplyOverflow();
+        return;
+    }
+
+    // It's already initialized to its default state so
+    // we don't have to do anything.
+
+    ReplySuccess();
 }
 
-void RequestPressLeftJoy(uint8_t *rp, uint8_t rl)
+void RequestMoveLeftJoy(uint8_t *rp, uint8_t rl)
 {
-    ReplyError();
+    if( rl < 3 )
+    {
+        ReplyError();
+    }
+    if( rl > 5 )
+    {
+        ReplyError();
+    }
+
+    uint8_t f=CMDQueueFree();
+    if( f < 2 )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Set up the down strokes.
+    cmdqueue_element_t *pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // LX, + is right, - is left
+    // LY, + is down, - is up
+    // Request and reply data is MSB-first AKA Network Byte Order AKA Big-Endian
+    // 0       1   2   3          4
+    // Prefix, LX, LY, MSec high, MSec low
+
+    pe->i.LX = rp[1];
+    pe->i.LY = rp[2];
+
+    if( rl >= 4 )
+    {
+        pe->duration_msec = rp[3]<<8;
+        if( rl >= 5 )
+        {
+            pe->duration_msec |= rp[4];
+        }
+    }
+    else
+    {
+        pe->duration_msec=default_press_duration_msec;
+    }
+
+    // Set up the up strokes.
+    // Since this is a full button press, we now need
+    // to release the buttons.
+
+    pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        // This shouldn't happen.
+        ReplyOverflow();
+        return;
+    }
+
+    // It's already initialized to its default state so
+    // we don't have to do anything.
+
+    ReplySuccess();
 }
 
-void RequestPressRightJoy(uint8_t *rp, uint8_t rl)
+void RequestMoveRightJoy(uint8_t *rp, uint8_t rl)
 {
-    ReplyError();
+    if( rl < 3 )
+    {
+        ReplyError();
+    }
+    if( rl > 5 )
+    {
+        ReplyError();
+    }
+
+    uint8_t f=CMDQueueFree();
+    if( f < 2 )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Set up the down strokes.
+    cmdqueue_element_t *pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // RX, + is right, - is left
+    // RY, + is down, - is up
+    // Request and reply data is MSB-first AKA Network Byte Order AKA Big-Endian
+    // 0       1   2   3          4
+    // Prefix, RX, RY, MSec high, MSec low
+
+    pe->i.RX = rp[1];
+    pe->i.RY = rp[2];
+
+    if( rl >= 4 )
+    {
+        pe->duration_msec = rp[3]<<8;
+        if( rl >= 5 )
+        {
+            pe->duration_msec |= rp[4];
+        }
+    }
+    else
+    {
+        pe->duration_msec=default_press_duration_msec;
+    }
+
+    // Set up the up strokes.
+    // Since this is a full button press, we now need
+    // to release the buttons.
+
+    pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        // This shouldn't happen.
+        ReplyOverflow();
+        return;
+    }
+
+    // It's already initialized to its default state so
+    // we don't have to do anything.
+
+    ReplySuccess();
 }
 
 void RequestPressHat(uint8_t *rp, uint8_t rl)
 {
-    ReplyError();
+    if( rl < 2 )
+    {
+        ReplyError();
+    }
+    if( rl > 4 )
+    {
+        ReplyError();
+    }
+
+    uint8_t f=CMDQueueFree();
+    if( f < 2 )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Set up the down strokes.
+    cmdqueue_element_t *pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        ReplyOverflow();
+        return;
+    }
+
+    // Request and reply data is MSB-first AKA Network Byte Order AKA Big-Endian
+    // 0       1    2          3
+    // Prefix, Hat, MSec high, MSec low
+
+    pe->i.HAT = rp[1];
+
+    if( rl >= 3 )
+    {
+        pe->duration_msec = rp[2]<<8;
+        if( rl >= 4 )
+        {
+            pe->duration_msec |= rp[3];
+        }
+    }
+    else
+    {
+        pe->duration_msec=default_press_duration_msec;
+    }
+
+    // Set up the up strokes.
+    // Since this is a full button press, we now need
+    // to release the buttons.
+
+    pe=NULL;
+    CMDQueueAdd(&pe);
+    if( ! pe )
+    {
+        // This shouldn't happen.
+        ReplyOverflow();
+        return;
+    }
+
+    // It's already initialized to its default state so
+    // we don't have to do anything.
+
+    ReplySuccess();
 }
 
 void RequestClearState(uint8_t *rp, uint8_t rl)
@@ -281,11 +528,11 @@ void ProcessRequest(uint8_t *rp, uint8_t rl)
         case GBPCMD_REQ_PRESS_BUTTONS:
             RequestPressButtons(rp,rl);
             break;
-        case GBPCMD_REQ_PRESS_LEFT_JOY:
-            RequestPressLeftJoy(rp,rl);
+        case GBPCMD_REQ_MOVE_LEFT_JOY:
+            RequestMoveLeftJoy(rp,rl);
             break;
-        case GBPCMD_REQ_PRESS_RIGHT_JOY:
-            RequestPressRightJoy(rp,rl);
+        case GBPCMD_REQ_MOVE_RIGHT_JOY:
+            RequestMoveRightJoy(rp,rl);
             break;
         case GBPCMD_REQ_PRESS_HAT:
             RequestPressHat(rp,rl);

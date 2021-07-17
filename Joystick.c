@@ -117,14 +117,12 @@ ISR (TIMER0_OVF_vect) // timer0 overflow interrupt
 void EVENT_USB_Device_Connect(void)
 {
     // We can indicate that we're enumerating here (via status LEDs, sound, etc.).
-    SerialRingAdd(&sro,'e');
 }
 
 // Fired to indicate that the device is no longer connected to a host.
 void EVENT_USB_Device_Disconnect(void)
 {
     // We can indicate that our device is not ready (via status LEDs, sound, etc.).
-    SerialRingAdd(&sro,'d');
 }
 
 // Fired when the host set the current configuration of the USB device after enumeration.
@@ -137,7 +135,6 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 
     // We can read ConfigSuccess to indicate a success or failure at this point.
-    SerialRingAdd(&sro,'c');
 }
 
 // Process control requests sent to the device from the USB host.
@@ -173,7 +170,6 @@ void HID_Task(void)
         }
         // Regardless of whether we reacted to the data, we acknowledge an OUT packet on this endpoint.
         Endpoint_ClearOUT();
-SerialRingAdd(&sro,'o');
     }
 
     // The report to send is at gpe.
@@ -192,7 +188,6 @@ SerialRingAdd(&sro,'o');
                 Endpoint_ClearIN();
                 // decrement echo counter
                 echo_count--;
-SerialRingAdd(&sro,'i');
             }
         }
     }

@@ -11,16 +11,18 @@ import time
 
 import packetserial
 
-def do_request_reply_test():
-    is_alive=packetserial.request_test_alive()
+def do_request_reply_test(ps):
+    is_alive=ps.request_test_alive()
     if is_alive:
         print("is alive")
     else:
         print("is not alive")
 
 def open_and_test():
-    packetserial.PacketSerialOpenAndClear()
-    do_request_reply_test();
+    ps=packetserial.PacketSerial()
+    ps.OpenAndClear()
+    do_request_reply_test(ps);
+    ps.Close()
 
 def main(args):
     print("gamebot test alive")

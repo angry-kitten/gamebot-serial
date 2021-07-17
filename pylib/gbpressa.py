@@ -11,34 +11,13 @@ import time
 
 import packetserial
 
-# Request and reply data is MSB-first AKA Network Byte Order AKA Big-Endian
-# 0       1            2           3    4   5   6   7   8          9
-# Prefix, Button high, Button low, Hat, LX, LY, RX, RY, MSec high, MSec low
-
-def press_A():
-    req=bytearray(packetserial.GBPCMD_REQ_PRESS_ALL);
-    v=packetserial.SWITCH_A
-    req.append((0xff00&v)>>8); # Button high
-    req.append(0x00ff&v); # Button low
-    req.append(0); # Hat
-    req.append(packetserial.STICK_CENTER); # LX
-    req.append(packetserial.STICK_CENTER); # LY
-    req.append(packetserial.STICK_CENTER); # RX
-    req.append(packetserial.STICK_CENTER); # RY
-    print(f"req=[{req}]")
-    rep=packetserial.PacketSerialRequest(req)
-    print(f"rep=[{rep}]")
-    if packetserial.GBPCMD_REP_SUCCESS == rep:
-        print("test result good")
-        return
-    print("test result bad")
-
-
 def open_and_test():
-    packetserial.PacketSerialOpenAndClear()
+    ps=packetserial.PacketSerial()
+    ps.OpenAndClear()
     time.sleep(1)
-    press_A()
+    ps.press_A()
     time.sleep(1)
+    ps.Close()
 
 def main(args):
     print("gamebot press A")
