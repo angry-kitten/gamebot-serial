@@ -152,9 +152,9 @@ class PacketSerial:
 
     def request_query_state(self):
         req=self.GBPCMD_REQ_QUERY_STATE;
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if len(rep) != self.GBPCMD_REQ_QUERY_STATE_REPLY_SIZE:
             print("test result bad 2")
             return
@@ -193,88 +193,92 @@ class PacketSerial:
 
     def request_test_alive(self):
         req=self.GBPCMD_REQ_TEST
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if len(rep) != 1:
             print("test result bad 2")
             return False
         if self.GBPCMD_REP_ALIVE != rep:
             print("test result bad")
             return False
-        print("test result good")
+        #print("test result good")
         return True
 
     def request_press_buttons(self,buttons,duration_msec):
         req=bytearray(self.GBPCMD_REQ_PRESS_BUTTONS);
         req.append((0xff00&buttons)>>8); # Button high
         req.append(0x00ff&buttons); # Button low
+        duration_msec=int(duration_msec)
         if duration_msec > 0:
             req.append((0xff00&duration_msec)>>8);
             req.append(0x00ff&duration_msec);
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if self.GBPCMD_REP_SUCCESS != rep:
             print("test result bad")
             return False
-        print("test result good")
+        #print("test result good")
         return True
 
     def request_move_left_joy(self,LX,LY,duration_msec):
         req=bytearray(self.GBPCMD_REQ_MOVE_LEFT_JOY);
         req.append(LX) # LX, + is right, - is left
         req.append(LY) # LY, + is down, - is up
+        duration_msec=int(duration_msec)
         if duration_msec > 0:
             req.append((0xff00&duration_msec)>>8);
             req.append(0x00ff&duration_msec);
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if self.GBPCMD_REP_SUCCESS != rep:
             print("test result bad")
             return False
-        print("test result good")
+        #print("test result good")
         return True
 
     def request_move_right_joy(self,RX,RY,duration_msec):
         req=bytearray(self.GBPCMD_REQ_MOVE_RIGHT_JOY);
         req.append(RX) # RX, + is right, - is left
         req.append(RY) # RY, + is down, - is up
+        duration_msec=int(duration_msec)
         if duration_msec > 0:
             req.append((0xff00&duration_msec)>>8);
             req.append(0x00ff&duration_msec);
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if self.GBPCMD_REP_SUCCESS != rep:
             print("test result bad")
             return False
-        print("test result good")
+        #print("test result good")
         return True
 
     def request_press_hat(self,hat,duration_msec):
         req=bytearray(self.GBPCMD_REQ_PRESS_HAT);
         req.append(hat)
+        duration_msec=int(duration_msec)
         if duration_msec > 0:
             req.append((0xff00&duration_msec)>>8);
             req.append(0x00ff&duration_msec);
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if self.GBPCMD_REP_SUCCESS != rep:
             print("test result bad")
             return False
-        print("test result good")
+        #print("test result good")
         return True
 
     def request_clear_state(self):
         req=self.GBPCMD_REQ_CLEAR_STATE;
-        print(f"req=[{req}]")
+        #print(f"req=[{req}]")
         rep=self.Request(req)
-        print(f"rep=[{rep}]")
+        #print(f"rep=[{rep}]")
         if self.GBPCMD_REP_SUCCESS == rep:
-            print("test result good")
+            #print("test result good")
             return
         print("test result bad")
 
