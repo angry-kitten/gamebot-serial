@@ -7,6 +7,7 @@
 import sys
 import os
 import time
+import math
 import serial
 import zlib
 
@@ -92,6 +93,7 @@ class PacketSerial:
         return v & 0xff
 
     def RequestPacket(self,s,bs):
+        """Write a request packet to the serial line."""
         datalen=len(bs)
         ba=bytearray(bs)
         ba.insert(0,self.SP_START[0])
@@ -104,6 +106,7 @@ class PacketSerial:
         s.write(bytes('\r\n','utf-8')) # append cr and nl to help with debugging
 
     def ReplyPacket(self,s):
+        """Read a reply packet from the serial line."""
         while True:
             if s.in_waiting <= 0:
                 time.sleep(0.01) # sleep 10 milliseconds
@@ -134,9 +137,18 @@ class PacketSerial:
         return databytes
 
     # req is a bytes or bytearray
-    def Request(self,req):
+    def RequestNoRetry(self,req):
         self.RequestPacket(self.Device,req)
         rep=self.ReplyPacket(self.Device)
+        return rep
+
+    # req is a bytes or bytearray
+    def Request(self,req):
+        for retry in range(3):
+            rep=self.RequestNoRetry(req)
+            if len(rep) > 0:
+                return rep
+            print("request failure")
         return rep
 
     def OpenAndClear(self):
@@ -223,6 +235,14 @@ class PacketSerial:
         return True
 
     def request_move_left_joy(self,LX,LY,duration_msec):
+        if LX < self.STICK_MIN:
+            LX=self.STICK_MIN
+        elif LX > self.STICK_MAX:
+            LX=self.STICK_MAX
+        if LY < self.STICK_MIN:
+            LY=self.STICK_MIN
+        elif LY > self.STICK_MAX:
+            LY=self.STICK_MAX
         req=bytearray(self.GBPCMD_REQ_MOVE_LEFT_JOY);
         req.append(LX) # LX, + is right, - is left
         req.append(LY) # LY, + is down, - is up
@@ -240,6 +260,12 @@ class PacketSerial:
         return True
 
     def request_move_right_joy(self,RX,RY,duration_msec):
+        if RX < self.STICK_MIN:
+            RX=self.STICK_MIN
+        elif RX > self.STICK_MAX:
+            RX=self.STICK_MAX
+        if RY < self.STICK_MIN:
+            RY=self.STICK_MIN
         req=bytearray(self.GBPCMD_REQ_MOVE_RIGHT_JOY);
         req.append(RX) # RX, + is right, - is left
         req.append(RY) # RY, + is down, - is up
@@ -283,6 +309,30 @@ class PacketSerial:
         print("test result bad")
 
     # convenience functions
+
+    # heading= 0=up/north, 90=right/east, 180=down/south, 270=left/west
+    # extent= 0.0= 0% nothing/center, 1.0= 100% full/max
+    def left_joy_heading(self,heading,extent,duration_msec):
+        fsin=math.sin(math.radians(heading)) # + is right
+        fcos=math.cos(math.radians(heading)) # + is up
+        radius=extent*(self.STICK_MAX-self.STICK_CENTER)
+        # dX, + is right, - is left
+        # dY, + is down, - is up
+        dX=self.STICK_CENTER+int(round(fsin*radius))
+        dY=self.STICK_CENTER-int(round(fcos*radius))
+        return self.request_move_left_joy(dX,dY,duration_msec)
+
+    # heading= 0=up/north, 90=right/east, 180=down/south, 270=left/west
+    # extent= 0.0= 0% nothing/center, 1.0= 100% full/max
+    def right_joy_heading(self,heading,extent,duration_msec):
+        fsin=math.sin(math.radians(heading)) # + is right
+        fcos=math.cos(math.radians(heading)) # + is up
+        radius=extent*(self.STICK_MAX-self.STICK_CENTER)
+        # dX, + is right, - is left
+        # dY, + is down, - is up
+        dX=self.STICK_CENTER+int(round(fsin*radius))
+        dY=self.STICK_CENTER-int(round(fcos*radius))
+        return self.request_move_right_joy(dX,dY,duration_msec)
 
     def press_Y(self,msec=0):
         return self.request_press_buttons(self.SWITCH_Y,msec)
