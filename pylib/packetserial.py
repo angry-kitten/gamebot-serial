@@ -107,8 +107,15 @@ class PacketSerial:
 
     def ReplyPacket(self,s):
         """Read a reply packet from the serial line."""
+        timeout_seconds=1 # second
+        start_time_seconds=time.monotonic()
         while True:
             if s.in_waiting <= 0:
+                time_now_seconds=time.monotonic()
+                time_delta_seconds=time_now_seconds-start_time_seconds
+                if time_delta_seconds >= timeout_seconds:
+                    print("timeout")
+                    return bytes(0)
                 time.sleep(0.01) # sleep 10 milliseconds
             else:
                 b=s.read()
@@ -169,10 +176,10 @@ class PacketSerial:
         #print(f"rep=[{rep}]")
         if len(rep) != self.GBPCMD_REQ_QUERY_STATE_REPLY_SIZE:
             print("test result bad 2")
-            return
+            return (0,0,0,0,0,0,0)
         if self.GBPCMD_REQ_QUERY_STATE != rep[0:1]:
             print("test result bad 1")
-            return
+            return (0,0,0,0,0,0,0)
         print("test result good")
         # decode the data now
         flags=rep[1]
