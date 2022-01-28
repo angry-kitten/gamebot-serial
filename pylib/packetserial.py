@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2021 by angry-kitten
+# Copyright 2021-2022 by angry-kitten
 # Serial packet support written for gamebot-serial.
 #
 
@@ -13,7 +13,10 @@ import zlib
 
 class PacketSerial:
 
-    default_serial_device="/dev/ttyUSB0"
+    # for Linux
+    #default_serial_device="/dev/ttyUSB0"
+    # for Windows
+    default_serial_device="COM3"
     default_baud=9600
 
     SWITCH_Y=0x0001
@@ -134,6 +137,9 @@ class PacketSerial:
         databytes=s.read(l1)
         checksum=s.read(1)
         endbyte=s.read(1)
+        if len(endbyte) < 1:
+            print("missing end byte")
+            return bytes(0)
         if self.SP_END[0] != endbyte[0]:
             print("bad end byte")
             return bytes(0)
