@@ -10,13 +10,30 @@ import time
 import math
 import serial
 import zlib
+import serial.tools.list_ports
 
 class PacketSerial:
 
-    # for Linux
-    #default_serial_device="/dev/ttyUSB0"
-    # for Windows
-    default_serial_device="COM3"
+    if "posix" == os.name:
+        # for Linux
+        default_serial_device="/dev/ttyUSB0"
+    elif "nt" == os.name:
+        # for Windows
+        default_serial_device="COM3"
+    else:
+        # ?
+        default_serial_device="/dev/ttyUSB0"
+
+    #print(f'default_serial_device=[{default_serial_device}]')
+
+    portlist=serial.tools.list_ports.comports(include_links=False)
+    portlist.sort()
+    if len(portlist) > 0:
+        p=portlist[0]
+        default_serial_device=p.name
+
+    #print(f'default_serial_device=[{default_serial_device}]')
+
     default_baud=9600
 
     SWITCH_Y=0x0001
